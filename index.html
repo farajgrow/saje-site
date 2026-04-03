@@ -26,7 +26,7 @@
     --orange-glow-strong: rgba(217, 120, 87, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: auto; background: var(--black); overflow-x: clip; }
+  html { scroll-behavior: auto; background: var(--black); }
   ::selection { background: var(--orange); color: var(--black); }
   :focus-visible {
     outline: 2px solid var(--orange);
@@ -37,6 +37,7 @@
     background: transparent; /* html provides base black */
     color: var(--off-white);
     overflow-x: hidden;
+    touch-action: pan-y;
     -webkit-font-smoothing: antialiased;
     position: relative;
     isolation: isolate; /* stacking context so bg-layer z-index:-1 stays behind content */
@@ -941,6 +942,7 @@
       });
     };
 
+    lenis.on('scroll', update);
     window.addEventListener('scroll', update, { passive: true });
     update();
   })();
