@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saje — Block distractions. See your deadlines. Actually study.</title>
 <meta name="description" content="Saje combines screen blocking, deadlines, and social accountability into one app built for students. Join the waitlist.">
-<link rel="icon" type="image/png" href="logo-icon.png">
+<link rel="icon" type="image/png" href="Component%201.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Space+Grotesk:wght@700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   :root {
     --black: #0A0A0A;
@@ -26,12 +26,50 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; background: var(--black); }
+  ::selection { background: var(--orange); color: var(--black); }
+  :focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+  }
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--black);
+    background: transparent; /* html provides base black */
     color: var(--off-white);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    position: relative;
+    isolation: isolate; /* stacking context so bg-layer z-index:-1 stays behind content */
+  }
+
+  /* ─── BACKGROUND TEXTURE LAYER ─── */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url('bg-texture.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    pointer-events: none;
+    will-change: transform;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+  }
+  @media (max-width: 768px) {
+    .bg-layer { opacity: 0.3; }
   }
 
   /* ─── FLOATING ISLAND NAV ─── */
@@ -54,8 +92,7 @@
   .nav-island .nav-logo {
     width: 30px;
     height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     margin-right: 6px;
   }
   .nav-island a {
@@ -92,21 +129,21 @@
     position: relative;
   }
   .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.8rem, 6.5vw, 5rem);
-    font-weight: 500;
-    line-height: 1.1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(3.2rem, 7.5vw, 6rem);
+    font-weight: 700;
+    line-height: 1.08;
     margin-bottom: 20px;
     max-width: 800px;
     animation: fadeInUp 0.8s ease 0.1s both;
   }
   .hero h1 .accent { color: var(--orange); font-style: italic; }
   .hero .subtitle {
-    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-size: clamp(1.3rem, 2.8vw, 2rem);
     color: var(--gray);
     font-weight: 300;
-    max-width: 560px;
-    line-height: 1.7;
+    max-width: 720px;
+    line-height: 1.45;
     margin-bottom: 16px;
     animation: fadeInUp 0.8s ease 0.2s both;
   }
@@ -308,10 +345,13 @@
   .form-note .hl { color: var(--orange); }
   .form-success {
     display: none;
+    max-width: 380px;
+    margin-top: 36px;
     padding: 24px;
     border-radius: 14px;
     background: rgba(217,120,87,0.06);
     border: 1px solid rgba(217,120,87,0.15);
+    animation: fadeInUp 0.6s ease both;
   }
   .form-success h3 {
     font-family: 'Playfair Display', serif;
@@ -321,6 +361,254 @@
   }
   .form-success p { color: var(--gray); font-size: 0.88rem; }
   .form-error { display: none; margin-top: 8px; font-size: 0.82rem; color: #d94444; }
+
+  /* ─── SECTION GLOWS ─── */
+  #features, #mission {
+    position: relative;
+    isolation: isolate;
+  }
+  #features::before {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 520px;
+    background: radial-gradient(ellipse, rgba(217,120,87,0.07) 0%, transparent 68%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  #mission::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 620px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(217,120,87,0.055) 0%, transparent 68%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* ─── PROBLEM STATEMENT (STICKY SCROLL) ─── */
+  .problem-section {
+    max-width: 100%;
+    height: 450vh;
+    padding: 0;
+    margin: 0;
+  }
+  .problem-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .word-reveal {
+    position: absolute;
+    width: 90vw;
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2rem, 4.5vw, 3.8rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--off-white);
+    opacity: 0;
+    transform: translateY(0);
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .word-reveal.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .word-reveal.exited {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+  .word {
+    display: inline;
+    transition: opacity 0.15s ease;
+  }
+
+
+  /* ─── HERO LOGO + CTA LABELS ─── */
+  .hero-logo {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    margin: 36px 0 24px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+  .hero-cta-label {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+    font-weight: 500;
+    margin-bottom: 6px;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+  .hero-cta-sub {
+    font-size: 0.88rem;
+    color: var(--gray);
+    font-weight: 300;
+    margin-bottom: 0;
+    animation: fadeInUp 0.8s ease 0.35s both;
+  }
+
+  /* ─── HERO BADGE ─── */
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    font-size: 0.75rem;
+    color: var(--light-gray);
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    animation: fadeInUp 0.5s ease both;
+  }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 8px rgba(217,120,87,0.7);
+  }
+
+  /* ─── HERO FORM ─── */
+  .hero-form {
+    margin-top: 36px;
+    width: 100%;
+    max-width: 380px;
+    animation: fadeInUp 0.8s ease 0.42s both;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    background: rgba(255,255,255,0.02);
+  }
+  .form-step {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                margin-bottom 0.35s ease;
+    margin-bottom: 0;
+  }
+  .form-step.active {
+    max-height: 60px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-bottom: 10px;
+  }
+  #step-submit.active { max-height: 56px; }
+  .form-step input {
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(22,22,22,0.85);
+    color: var(--off-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .form-step input::placeholder { color: #555; font-weight: 300; }
+  .form-step input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px var(--orange-glow);
+  }
+  .hero-submit {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--orange);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+  }
+  .hero-submit:hover {
+    background: var(--orange-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px var(--orange-glow-strong);
+  }
+  .hero-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .hero-form-note {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: #555;
+    font-weight: 300;
+    text-align: center;
+  }
+  .hero-form-note .hl { color: var(--orange); }
+
+  /* ─── ACCESS STEPS ─── */
+  #access { text-align: center; padding-bottom: 100px; }
+  .steps-row {
+    display: flex;
+    align-items: flex-start;
+    max-width: 700px;
+    margin: 52px auto 0;
+  }
+  .step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .step-box {
+    width: 90px;
+    height: 90px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--dark-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: var(--orange);
+    margin-bottom: 22px;
+  }
+  .step-connector {
+    flex: 0 0 48px;
+    flex-shrink: 0;
+    height: 1px;
+    border-top: 1px dashed rgba(255,255,255,0.14);
+    margin-top: 45px; /* half of step-box height — centers line with boxes */
+  }
+  .step h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--off-white);
+    margin-bottom: 8px;
+  }
+  .step p {
+    font-size: 0.82rem;
+    color: var(--gray);
+    line-height: 1.65;
+    max-width: 170px;
+    font-weight: 300;
+  }
 
   /* ─── FOOTER ─── */
   footer {
@@ -351,6 +639,21 @@
     .features-grid { grid-template-columns: 1fr; gap: 12px; }
     .founder-block { padding: 28px 20px; }
     section { padding: 50px 18px; }
+    .steps-row {
+      flex-direction: column;
+      align-items: center;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .step-connector {
+      width: 1px;
+      height: 36px;
+      border-top: none;
+      border-left: 1px dashed rgba(255,255,255,0.14);
+      margin-top: 0;
+      flex: 0 0 36px;
+    }
   }
   @media (max-width: 480px) {
     .hero h1 { font-size: 2.2rem; }
@@ -359,22 +662,57 @@
 </head>
 <body>
 
+<!-- BACKGROUND TEXTURE -->
+<div class="bg-layer" aria-hidden="true"></div>
+
 <!-- FLOATING ISLAND NAV -->
 <div class="nav-island">
-  <img src="logo-circle.png" alt="Saje" class="nav-logo">
+  <img src="Component%201.png" alt="Saje" class="nav-logo">
   <a href="#features">Features</a>
   <a href="#mission">Mission</a>
   <a href="#waitlist" class="nav-cta">Waitlist</a>
 </div>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="waitlist">
   <h1>Block the noise.<br>Own your time.</h1>
-  <p class="subtitle">
-    <strong>Saje</strong> shows your deadlines every time you reach for a distraction.
-    Join the waitlist and be first to try it.
-  </p>
-  <a href="#waitlist" class="hero-cta">Join the Waitlist</a>
+  <p class="subtitle"><strong>Saje</strong> shows your deadlines every time you reach for a distraction.</p>
+
+  <img src="Component%201.png" alt="Saje" class="hero-logo">
+
+  <p class="hero-cta-label">Be the first to try <span style="color:var(--orange);font-style:italic">Saje.</span></p>
+  <p class="hero-cta-sub">Join students already on the waitlist.</p>
+
+  <form id="waitlistForm" class="hero-form" onsubmit="handleSubmit(event)">
+    <div class="form-step active" id="step-0">
+      <input type="email" name="email" id="inputEmail" placeholder="you@university.edu.au" autocomplete="email">
+    </div>
+    <div class="form-step" id="step-1">
+      <input type="text" name="name" id="inputName" placeholder="Your name" autocomplete="name">
+    </div>
+    <div class="form-step" id="step-2">
+      <input type="text" name="university" id="inputUni" placeholder="University or school">
+    </div>
+    <div class="form-step" id="step-submit">
+      <button type="submit" class="hero-submit" id="submitBtn">Join the Waitlist</button>
+    </div>
+    <div class="form-error" id="formError"></div>
+    <p class="hero-form-note"><span class="hl">.edu.au</span> email? You skip the queue.</p>
+  </form>
+
+  <div class="form-success" id="formSuccess">
+    <h3>You're on the list.</h3>
+    <p>We'll let you know when Saje is ready. Tell your friends.</p>
+  </div>
+</section>
+
+<!-- PROBLEM STATEMENT -->
+<section class="problem-section" id="problem">
+  <div class="problem-sticky">
+    <p class="word-reveal"><span class="word">Most</span> <span class="word">students</span> <span class="word">aren't</span> <span class="word">lazy.</span></p>
+    <p class="word-reveal"><span class="word">They're</span> <span class="word">just</span> <span class="word">losing</span> <span class="word">to</span> <span class="word">their</span> <span class="word">phone.</span></p>
+    <p class="word-reveal"><span class="word">96%</span> <span class="word">say</span> <span class="word">it</span> <span class="word">happens</span> <span class="word">every</span> <span class="word">single</span> <span class="word">day.</span></p>
+  </div>
 </section>
 
 <!-- FEATURES -->
@@ -449,25 +787,29 @@
   </div>
 </section>
 
-<!-- WAITLIST -->
-<section id="waitlist">
-  <img src="logo-circle.png" alt="Saje" class="waitlist-logo reveal">
+<!-- ACCESS STEPS -->
+<section id="access">
   <div class="section-label reveal">Early Access</div>
-  <h2 class="section-heading reveal">Be the first to try <span style="color:var(--orange);font-style:italic">Saje.</span></h2>
-  <p class="section-sub reveal" style="margin:0 auto;">Join students already on the waitlist.</p>
+  <h2 class="section-heading reveal">How we roll out access</h2>
+  <p class="section-sub reveal" style="margin:0 auto;">Spots open in batches. Here's how you get yours.</p>
 
-  <div class="waitlist-form reveal">
-    <form id="waitlistForm" onsubmit="handleSubmit(event)">
-      <div class="form-group"><input type="text" name="name" placeholder="Your name" required></div>
-      <div class="form-group"><input type="email" name="email" placeholder="you@university.edu" required></div>
-      <div class="form-group"><input type="text" name="university" placeholder="University or school" required></div>
-      <button type="submit" class="form-submit" id="submitBtn">Join waitlist</button>
-      <div class="form-error" id="formError"></div>
-      <p class="form-note">Use your <span class="hl">.edu.au</span> email for priority access</p>
-    </form>
-    <div class="form-success" id="formSuccess">
-      <h3>You're on the list.</h3>
-      <p>We'll let you know when Saje is ready. Tell your friends.</p>
+  <div class="steps-row">
+    <div class="step reveal">
+      <div class="step-box">1</div>
+      <h3>Reserve your spot</h3>
+      <p>Join the waitlist — we're rolling out access now in batches.</p>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step reveal">
+      <div class="step-box">2</div>
+      <h3>Move up the queue</h3>
+      <p>Use your .edu.au email for automatic priority status.</p>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step reveal">
+      <div class="step-box">3</div>
+      <h3>Get early access</h3>
+      <p>We send invites in batches, starting from the top of the list.</p>
     </div>
   </div>
 </section>
@@ -478,6 +820,96 @@
 </footer>
 
 <script>
+  // Multi-step form
+  (function () {
+    const inputs = [
+      document.getElementById('inputEmail'),
+      document.getElementById('inputName'),
+      document.getElementById('inputUni'),
+    ];
+    const steps = [
+      document.getElementById('step-0'),
+      document.getElementById('step-1'),
+      document.getElementById('step-2'),
+      document.getElementById('step-submit'),
+    ];
+
+    function advance(i) {
+      const input = inputs[i];
+      if (!input.value.trim()) { input.focus(); return; }
+      if (i === 0 && !/\S+@\S+\.\S+/.test(input.value.trim())) {
+        input.focus(); return;
+      }
+      const next = steps[i + 1];
+      if (next) {
+        next.classList.add('active');
+        const nextInput = inputs[i + 1];
+        if (nextInput) setTimeout(() => nextInput.focus(), 420);
+      }
+    }
+
+    inputs.forEach((input, i) => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); advance(i); }
+      });
+    });
+  })();
+
+  // Sticky scroll problem section
+  (function () {
+    const section = document.getElementById('problem');
+    if (!section) return;
+    const lines = section.querySelectorAll('.word-reveal');
+    const total = lines.length;
+
+    const update = () => {
+      const rect = section.getBoundingClientRect();
+      const maxScroll = section.offsetHeight - window.innerHeight;
+      const scrolled = -rect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
+
+      // lineP: 0 → total, split evenly across scroll range
+      const lineP = progress * total;
+      const activeIdx = Math.min(Math.floor(lineP), total - 1);
+      const local = lineP - activeIdx; // 0–1 within the active line
+
+      lines.forEach((line, i) => {
+        const ws = line.querySelectorAll('.word');
+        if (i < activeIdx) {
+          // Done — slide up, all words white
+          line.classList.remove('active');
+          line.classList.add('exited');
+          ws.forEach(w => { w.style.opacity = '1'; w.style.color = ''; });
+        } else if (i === activeIdx) {
+          // Active — frontier word turns orange, words behind it turn white
+          line.classList.add('active');
+          line.classList.remove('exited');
+          ws.forEach((w, j) => {
+            const threshold = j / ws.length;
+            const nextThreshold = (j + 1) / ws.length;
+            if (local < threshold) {
+              w.style.opacity = '0.08';
+              w.style.color = '';
+            } else if (local < nextThreshold) {
+              w.style.opacity = '1';
+              w.style.color = 'var(--orange)';
+            } else {
+              w.style.opacity = '1';
+              w.style.color = '';
+            }
+          });
+        } else {
+          // Upcoming — invisible
+          line.classList.remove('active', 'exited');
+          ws.forEach(w => { w.style.opacity = '0.08'; w.style.color = ''; });
+        }
+      });
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const obs = new IntersectionObserver((entries) => {
