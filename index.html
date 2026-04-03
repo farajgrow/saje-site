@@ -6,6 +6,7 @@
 <title>Saje — Block distractions. See your deadlines. Actually study.</title>
 <meta name="description" content="Saje combines screen blocking, deadlines, and social accountability into one app built for students. Join the waitlist.">
 <link rel="icon" type="image/png" href="Component%201.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Space+Grotesk:wght@700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
@@ -25,7 +26,7 @@
     --orange-glow-strong: rgba(217, 120, 87, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; background: var(--black); }
+  html { scroll-behavior: auto; background: var(--black); }
   ::selection { background: var(--orange); color: var(--black); }
   :focus-visible {
     outline: 2px solid var(--orange);
@@ -427,6 +428,11 @@
     opacity: 1;
     pointer-events: auto;
   }
+  .word-reveal.stacked {
+    opacity: 1;
+    transform: translateY(-10rem);
+    pointer-events: none;
+  }
   .word-reveal.exited {
     opacity: 0;
     transform: translateY(-100px);
@@ -439,11 +445,38 @@
 
   /* ─── HERO LOGO + CTA LABELS ─── */
   .hero-logo {
-    width: 160px;
-    height: 160px;
+    width: 120px;
+    height: 120px;
     object-fit: contain;
-    margin: 36px 0 24px;
-    animation: fadeInUp 0.8s ease 0.2s both;
+    margin: 48px 0 0;
+    animation: fadeInUp 0.8s ease 0.55s both;
+    transition: opacity 0.5s ease;
+  }
+
+  /* ─── FLOATING LOGO ─── */
+  .floating-logo-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    will-change: transform;
+  }
+  .floating-logo-img {
+    display: block;
+    object-fit: contain;
+    transition: width 0.25s ease, height 0.25s ease;
+  }
+  @keyframes logoBounce {
+    0%   { transform: translateY(0) scale(1); }
+    35%  { transform: translateY(-16px) scale(1.18); }
+    65%  { transform: translateY(5px) scale(0.88); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  .floating-logo-wrap.bouncing .floating-logo-img {
+    animation: logoBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .hero-cta-label {
     font-family: 'Playfair Display', serif;
@@ -678,8 +711,6 @@
   <h1>Block the noise.<br>Own your time.</h1>
   <p class="subtitle"><strong>Saje</strong> shows your deadlines every time you reach for a distraction.</p>
 
-  <img src="Component%201.png" alt="Saje" class="hero-logo">
-
   <p class="hero-cta-label">Be the first to try <span style="color:var(--orange);font-style:italic">Saje.</span></p>
   <p class="hero-cta-sub">Join students already on the waitlist.</p>
 
@@ -704,6 +735,8 @@
     <h3>You're on the list.</h3>
     <p>We'll let you know when Saje is ready. Tell your friends.</p>
   </div>
+
+  <img src="Component%201.png" alt="Saje" class="hero-logo" id="heroLogo">
 </section>
 
 <!-- PROBLEM STATEMENT -->
@@ -819,7 +852,29 @@
   <p>&copy; 2026 Saje &middot; Built with focus by <a href="https://instagram.com/findfaraj" target="_blank">Faraj</a></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 <script>
+  // Smooth scroll
+  const lenis = new Lenis({
+    lerp: 0.08,
+    wheelMultiplier: 0.9,
+    touchMultiplier: 1.5,
+    infinite: false,
+  });
+  (function rafLoop(time) {
+    lenis.raf(time);
+    requestAnimationFrame(rafLoop);
+  })(0);
+
+  // Wire nav anchor links through Lenis
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) lenis.scrollTo(target, { duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    });
+  });
+
   // Multi-step form
   (function () {
     const inputs = [
@@ -873,17 +928,23 @@
       const activeIdx = Math.min(Math.floor(lineP), total - 1);
       const local = lineP - activeIdx; // 0–1 within the active line
 
+      const onLastLine = activeIdx === total - 1;
       lines.forEach((line, i) => {
         const ws = line.querySelectorAll('.word');
         if (i < activeIdx) {
-          // Done — slide up, all words white
-          line.classList.remove('active');
-          line.classList.add('exited');
+          if (onLastLine) {
+            // Final line active — clear everything out
+            line.classList.remove('active', 'stacked');
+            line.classList.add('exited');
+          } else {
+            // Stay visible, shift up to make room for the active line
+            line.classList.remove('exited');
+            line.classList.add('active', 'stacked');
+          }
           ws.forEach(w => { w.style.opacity = '1'; w.style.color = ''; });
         } else if (i === activeIdx) {
-          // Active — frontier word turns orange, words behind it turn white
           line.classList.add('active');
-          line.classList.remove('exited');
+          line.classList.remove('exited', 'stacked');
           ws.forEach((w, j) => {
             const threshold = j / ws.length;
             const nextThreshold = (j + 1) / ws.length;
@@ -899,11 +960,106 @@
             }
           });
         } else {
-          // Upcoming — invisible
-          line.classList.remove('active', 'exited');
+          line.classList.remove('active', 'exited', 'stacked');
           ws.forEach(w => { w.style.opacity = '0.08'; w.style.color = ''; });
         }
       });
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+
+  // Floating logo scroll animation
+  (function () {
+    const heroLogo = document.getElementById('heroLogo');
+    const problemSection = document.getElementById('problem');
+    if (!heroLogo || !problemSection) return;
+
+    // Build fixed wrapper + inner image
+    const wrap = document.createElement('div');
+    wrap.className = 'floating-logo-wrap';
+    const img = document.createElement('img');
+    img.src = 'Component%201.png';
+    img.className = 'floating-logo-img';
+    img.setAttribute('aria-hidden', 'true');
+    img.style.width = '56px';
+    img.style.height = '56px';
+    wrap.appendChild(img);
+    document.body.appendChild(wrap);
+
+    const SIZE_START = 56;
+    const SIZE_END = 24;
+    let lastFrontierWord = null;
+    let hasDropped = false;
+
+    const getFrontierWord = (lines, progress) => {
+      const total = lines.length;
+      const lineP = progress * total;
+      const activeIdx = Math.min(Math.floor(lineP), total - 1);
+      const local = lineP - activeIdx;
+      const activeLine = lines[activeIdx];
+      if (!activeLine) return null;
+      const words = activeLine.querySelectorAll('.word');
+      let fw = words[words.length - 1];
+      for (let j = 0; j < words.length; j++) {
+        if (local >= j / words.length && local < (j + 1) / words.length) { fw = words[j]; break; }
+      }
+      return fw;
+    };
+
+    const update = () => {
+      const probRect = problemSection.getBoundingClientRect();
+      const maxScroll = problemSection.offsetHeight - window.innerHeight;
+      const scrolled = -probRect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
+
+      if (scrolled <= 0) {
+        // Pre-position float at hero logo (invisible) so drop starts from the right spot
+        const hRect = heroLogo.getBoundingClientRect();
+        wrap.style.transition = 'none';
+        wrap.style.transform = `translate(${hRect.left + hRect.width / 2 - SIZE_START / 2}px, ${hRect.top + hRect.height / 2 - SIZE_START / 2}px)`;
+        wrap.style.opacity = '0';
+        heroLogo.style.opacity = '1';
+        hasDropped = false;
+        lastFrontierWord = null;
+        return;
+      }
+
+      heroLogo.style.opacity = '0';
+
+      const lines = problemSection.querySelectorAll('.word-reveal');
+      const frontierWord = getFrontierWord(lines, progress);
+      if (!frontierWord) return;
+
+      const size = SIZE_START - progress * (SIZE_START - SIZE_END);
+      const wRect = frontierWord.getBoundingClientRect();
+      const tx = wRect.left + wRect.width / 2 - size / 2;
+      const ty = wRect.top - size - 8;
+
+      img.style.width = size + 'px';
+      img.style.height = size + 'px';
+
+      if (!hasDropped) {
+        // One-time spring drop from hero logo to first word
+        wrap.style.transition = 'opacity 0.3s ease, transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        wrap.style.opacity = '1';
+        wrap.style.transform = `translate(${tx}px, ${ty}px)`;
+        hasDropped = true;
+        // Remove transform transition after drop completes so tracking is instant
+        setTimeout(() => { wrap.style.transition = 'opacity 0.3s ease'; }, 700);
+      } else {
+        wrap.style.transform = `translate(${tx}px, ${ty}px)`;
+        wrap.style.opacity = '1';
+      }
+
+      // Bounce on each new frontier word
+      if (frontierWord !== lastFrontierWord) {
+        wrap.classList.remove('bouncing');
+        void wrap.offsetWidth;
+        wrap.classList.add('bouncing');
+        lastFrontierWord = frontierWord;
+      }
     };
 
     window.addEventListener('scroll', update, { passive: true });
@@ -923,7 +1079,7 @@
   reveals.forEach(el => obs.observe(el));
 
   // Waitlist — replace URL with your Google Apps Script web app URL
-  const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2OEwAp5OnN-QZH69ihxjm0heUQ_JwhX_U7k73Z34P4kGnHG47LKn5Q6-bwP-bg2mb/exec';
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -948,13 +1104,6 @@
     }
   }
 
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', function(e) {
-      e.preventDefault();
-      document.querySelector(this.getAttribute('href')).scrollIntoView({behavior:'smooth'});
-    });
-  });
 </script>
 </body>
 </html>
