@@ -26,7 +26,7 @@
     --orange-glow-strong: rgba(217, 120, 87, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: auto; background: var(--black); }
+  html { scroll-behavior: auto; background: var(--black); overflow-x: hidden; }
   ::selection { background: var(--orange); color: var(--black); }
   :focus-visible {
     outline: 2px solid var(--orange);
@@ -129,6 +129,7 @@
     text-align: center;
     padding: 100px 24px 60px;
     position: relative;
+    overflow-x: hidden;
   }
   .hero h1 {
     font-family: 'Space Grotesk', sans-serif;
@@ -137,6 +138,7 @@
     line-height: 1.08;
     margin-bottom: 20px;
     max-width: 800px;
+    width: 100%;
     animation: fadeInUp 0.8s ease 0.1s both;
   }
   .hero h1 .accent { color: var(--orange); font-style: italic; }
@@ -145,6 +147,7 @@
     color: var(--gray);
     font-weight: 300;
     max-width: 720px;
+    width: 100%;
     line-height: 1.45;
     margin-bottom: 16px;
     animation: fadeInUp 0.8s ease 0.2s both;
@@ -696,7 +699,9 @@
     }
   }
   @media (max-width: 480px) {
+    .hero { padding-left: 20px; padding-right: 20px; }
     .hero h1 { font-size: 2.2rem; }
+    .section-heading { font-size: 1.6rem; }
   }
 </style>
 </head>
