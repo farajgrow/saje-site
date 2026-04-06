@@ -515,12 +515,43 @@
     margin-bottom: 0;
   }
   .form-step.active {
-    max-height: 60px;
+    max-height: 80px;
     opacity: 1;
     transform: translateY(0);
     margin-bottom: 10px;
   }
   #step-submit.active { max-height: 56px; }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .step-arrow {
+    flex-shrink: 0;
+    width: 43px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(22,22,22,0.85);
+    color: var(--off-white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .step-arrow:hover {
+    border-color: var(--orange);
+    background: rgba(217,120,87,0.1);
+    color: var(--orange);
+  }
+  .field-error {
+    display: none;
+    font-size: 0.75rem;
+    color: #d94444;
+    margin-top: 5px;
+    text-align: left;
+    padding-left: 2px;
+  }
   .form-step input {
     width: 100%;
     padding: 13px 18px;
@@ -692,13 +723,31 @@
 
   <form id="waitlistForm" class="hero-form" onsubmit="handleSubmit(event)">
     <div class="form-step active" id="step-0">
-      <input type="email" name="email" id="inputEmail" placeholder="you@university.edu.au" autocomplete="email">
+      <div class="input-row">
+        <input type="email" name="email" id="inputEmail" placeholder="you@university.edu.au" autocomplete="email">
+        <button type="button" class="step-arrow" id="arrow-0" aria-label="Next">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="field-error" id="error-0"></p>
     </div>
     <div class="form-step" id="step-1">
-      <input type="text" name="name" id="inputName" placeholder="Your name" autocomplete="name">
+      <div class="input-row">
+        <input type="text" name="name" id="inputName" placeholder="Your name" autocomplete="name">
+        <button type="button" class="step-arrow" id="arrow-1" aria-label="Next">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="field-error" id="error-1"></p>
     </div>
     <div class="form-step" id="step-2">
-      <input type="text" name="university" id="inputUni" placeholder="University or school">
+      <div class="input-row">
+        <input type="text" name="university" id="inputUni" placeholder="University or school">
+        <button type="button" class="step-arrow" id="arrow-2" aria-label="Next">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="field-error" id="error-2"></p>
     </div>
     <div class="form-step" id="step-submit">
       <button type="submit" class="hero-submit" id="submitBtn">Join the Waitlist</button>
@@ -864,18 +913,43 @@
       document.getElementById('step-2'),
       document.getElementById('step-submit'),
     ];
+    const errors = [
+      document.getElementById('error-0'),
+      document.getElementById('error-1'),
+      document.getElementById('error-2'),
+    ];
+
+    function showError(i, msg) {
+      errors[i].textContent = msg;
+      errors[i].style.display = 'block';
+      steps[i].style.maxHeight = '80px';
+    }
+
+    function clearError(i) {
+      errors[i].textContent = '';
+      errors[i].style.display = 'none';
+    }
 
     function advance(i) {
       const input = inputs[i];
-      if (!input.value.trim()) { input.focus(); return; }
-      if (i === 0 && !/\S+@\S+\.\S+/.test(input.value.trim())) {
-        input.focus(); return;
+      if (!input.value.trim()) {
+        showError(i, i === 0 ? 'Please enter your email.' : i === 1 ? 'Please enter your name.' : 'Please enter your university.');
+        input.focus();
+        return;
       }
+      if (i === 0 && !/\S+@\S+\.\S+/.test(input.value.trim())) {
+        showError(i, 'Please enter a valid email address.');
+        input.focus();
+        return;
+      }
+      clearError(i);
+      const arrowBtn = document.getElementById('arrow-' + i);
+      if (arrowBtn) arrowBtn.style.display = 'none';
       const next = steps[i + 1];
       if (next) {
         next.classList.add('active');
         const nextInput = inputs[i + 1];
-        if (nextInput) setTimeout(() => nextInput.focus(), 420);
+        if (nextInput) setTimeout(() => nextInput.focus(), 350);
       }
     }
 
@@ -883,7 +957,13 @@
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); advance(i); }
       });
-      input.addEventListener('blur', () => advance(i));
+      input.addEventListener('input', () => {
+        if (errors[i].style.display === 'block') clearError(i);
+      });
+    });
+
+    [0, 1, 2].forEach(i => {
+      document.getElementById('arrow-' + i).addEventListener('click', () => advance(i));
     });
   })();
 
